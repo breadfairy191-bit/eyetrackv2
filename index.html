@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gaze Overlay</title>
+
+<!-- WebGazer 安定版 -->
+<script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #000000; /* 黒クロマキー */
+  }
+
+  #gazeDot {
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(0, 255, 0, 0.35); /* 半透明グリーン */
+    border: 2px solid rgba(0,255,0,0.8);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: transform 0.05s linear;
+  }
+
+  #status {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-family: sans-serif;
+    font-size: 14px;
+    opacity: 0.7;
+  }
+</style>
+</head>
+
+<body>
+<div id="gazeDot"></div>
+<div id="status">Initializing Eye Tracker...</div>
+
+<script>
+const dot = document.getElementById("gazeDot");
+const statusText = document.getElementById("status");
+
+window.onload = async () => {
+
+  // WebGazer起動
+  await webgazer
+    .setRegression('ridge')
+    .setGazeListener((data) => {
+      if (!data) return;
+
+      dot.style.left = data.x + "px";
+      dot.style.top = data.y + "px";
+    })
+    .begin();
+
+  // 🔥 WebGazerのUI全部消す
+  webgazer.showVideo(false);
+  webgazer.showFaceOverlay(false);
+  webgazer.showFaceFeedbackBox(false);
+  webgazer.showPredictionPoints(false);
+
+  statusText.textContent = "Tracking...";
+};
+</script>
+</body>
+</html>
