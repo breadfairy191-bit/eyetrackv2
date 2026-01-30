@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Gaze Overlay</title>
 
-<script src="https://webgazer.cs.brown.edu/webgazer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/webgazer@2.1.0/dist/webgazer.js"></script>"></script>
 
 <style>
 html, body {
@@ -58,8 +58,7 @@ video, canvas {
 const dot = document.getElementById("gazeDot");
 const statusText = document.getElementById("status");
 
-/* 🔧 安定化設定 */
-webgazer.setTracker("clmtrackr");        // 軽量トラッカー
+/* 🔧 安定化設定 */       // 軽量トラッカー
 webgazer.setRegression("ridge");
 webgazer.saveDataAcrossSessions(false);
 localStorage.clear();
