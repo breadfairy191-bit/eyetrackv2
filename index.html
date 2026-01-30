@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Gaze Overlay</title>
 
-<script src="https://cdn.jsdelivr.net/npm/webgazer@2.1.0/dist/webgazer.js"></script>"></script>
+<script src="https://cdn.jsdelivr.net/npm/webgazer@2.1.0/dist/webgazer.js"></script>
 
 <style>
 html, body {
@@ -15,16 +15,15 @@ html, body {
   background: #000000; /* 黒クロマキー */
 }
 
-/* WebGazer内部用（消すと壊れるので透明にする） */
+/* WebGazer内部（透明表示） */
 video, canvas {
   position: fixed !important;
   top: 0;
   left: 0;
-  opacity: 0.5 !important; /* 50%で見えるようにする */
-  z-index: 1000; /* 手前に持ってくる */
+  opacity: 0.5 !important;
+  z-index: 1000;
 }
 
-/* 視線マーカー */
 #gazeDot {
   position: fixed;
   width: 90px;
@@ -34,10 +33,8 @@ video, canvas {
   border: 2px solid rgba(0,255,0,0.9);
   pointer-events: none;
   transform: translate(-50%, -50%);
-  transition: transform 0.05s linear;
 }
 
-/* ステータス表示 */
 #status {
   position: fixed;
   top: 10px;
@@ -58,7 +55,12 @@ video, canvas {
 const dot = document.getElementById("gazeDot");
 const statusText = document.getElementById("status");
 
-/* 🔧 安定化設定 */       // 軽量トラッカー
+/* スムージング用変数 */
+let smoothX = window.innerWidth / 2;
+let smoothY = window.innerHeight / 2;
+const smoothFactor = 0.2;
+
+/* 安定化設定 */
 webgazer.setRegression("ridge");
 webgazer.saveDataAcrossSessions(false);
 localStorage.clear();
@@ -67,15 +69,19 @@ localStorage.clear();
 webgazer
   .setGazeListener((data) => {
     if (!data) return;
-    dot.style.left = data.x + "px";
-    dot.style.top  = data.y + "px";
+
+    smoothX += (data.x - smoothX) * smoothFactor;
+    smoothY += (data.y - smoothY) * smoothFactor;
+
+    dot.style.left = smoothX + "px";
+    dot.style.top  = smoothY + "px";
   })
   .begin();
 
-/* UI非表示設定 */
+/* UI非表示 */
 webgazer.showVideo(false);
 webgazer.showPredictionPoints(false);
-webgazer.showFaceOverlay(false); // 👀消す
+webgazer.showFaceOverlay(false);
 
 /* 校正ガイド */
 statusText.textContent = "中央→四隅を見る＆クリックして校正";
