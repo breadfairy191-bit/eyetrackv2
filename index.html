@@ -54,26 +54,44 @@ const dot = document.getElementById("gazeDot");
 const statusText = document.getElementById("status");
 
 window.onload = async () => {
+  statusText.textContent = "カメラを確認中...";
 
-  // WebGazer起動
   await webgazer
     .setRegression('ridge')
     .setGazeListener((data) => {
       if (!data) return;
-
       dot.style.left = data.x + "px";
       dot.style.top = data.y + "px";
     })
     .begin();
 
-  // 🔥 WebGazerのUI全部消す
-  webgazer.showVideo(false);
-  webgazer.showFaceOverlay(false);
-  webgazer.showFaceFeedbackBox(false);
-  webgazer.showPredictionPoints(false);
+  // 1. ビデオなどが完全に準備できるまで待つ
+  statusText.textContent = "画面の四隅と中央をクリックして校正してください";
 
-  statusText.textContent = "Tracking...";
+  // 2. 学習用のクリックイベントを追加
+  window.addEventListener('click', (e) => {
+    // クリックした瞬間にドットの色を変えるなどのフィードバックがあると良い
+    dot.style.background = "rgba(255, 255, 0, 0.8)"; // クリック時だけ黄色に
+    setTimeout(() => {
+      dot.style.background = "rgba(0, 255, 0, 0.35)";
+    }, 200);
+    
+    // 5回以上クリックされたらステータスを消すなどの演出
+    checkCalibration();
+  });
+
+  // UIを隠す設定は維持
+  webgazer.showVideo(false);
+  webgazer.showPredictionPoints(false);
 };
+
+let clickCount = 0;
+function checkCalibration() {
+  clickCount++;
+  if (clickCount >= 5) {
+    statusText.style.display = "none"; // 5回クリックで準備完了とみなす
+  }
+}
 </script>
 </body>
 </html>
